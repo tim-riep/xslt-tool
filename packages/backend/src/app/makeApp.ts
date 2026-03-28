@@ -3,10 +3,12 @@ import { fastify, type FastifyInstance } from "fastify";
 import configSchema from "./configSchema.js";
 import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUi from "@fastify/swagger-ui";
+import routes from "../routes/index.js";
 
 export default async () : Promise<FastifyInstance> => {
     const app = fastify({
-        logger:true
+        logger:true,
+        bodyLimit:1024*1024*1024
     })
 
     await app.register(fastifyEnv, {
@@ -26,6 +28,8 @@ export default async () : Promise<FastifyInstance> => {
     })
 
     await app.register(fastifySwaggerUi)
+
+    app.register(routes)
 
     return app;
 }
