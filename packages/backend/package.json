@@ -8,7 +8,8 @@
     "dev": "tsx ./src/index.ts",
     "watch": "tsx watch ./src/index.ts",
     "build": "tsc",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "start":"node ./dist/index.js"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,8 @@
     "@fastify/env": "^5.0.3",
     "@fastify/swagger": "^9.7.0",
     "@fastify/swagger-ui": "^5.2.5",
-    "fastify": "^5.8.2"
+    "fastify": "^5.8.2",
+    "saxon-js": "^2.7.0",
+    "xslt3": "^2.7.0"
   }
 }
