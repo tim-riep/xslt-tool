@@ -1,8 +1,9 @@
-import fastify from "fastify";
-const app = fastify({
-    logger:true
-})
+import makeApp from "./app/makeApp.js";
+
+const app = await makeApp()
+
+await app.ready()
 
 void app.listen({
-    port:3000
+    port:app.config.PORT
 })
