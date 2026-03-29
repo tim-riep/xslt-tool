@@ -19,6 +19,9 @@ jobs:
       run:
         working-directory: packages/backend
 
+    env:
+      DATABASE_URL: postgresql://dummy:dummy@localhost/dummy
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
