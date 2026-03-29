@@ -12,8 +12,11 @@ export type ApiRequest = <T>(path: string, init?: RequestInit) => Promise<T>
 interface ApiContextValue {
     /** The current access token, or null when not authenticated. */
     accessToken: string | null
-    /** Call this after a successful login to store the access token. */
-    setAccessToken: (token: string) => void
+    /**
+     * Logs in with email and password. Stores the returned access token
+     * automatically. Throws if the credentials are invalid (non-2xx response).
+     */
+    login: (mail: string, password: string) => Promise<void>
     /**
      * Makes an authenticated request to the API.
      *
@@ -85,6 +88,20 @@ export function ApiProvider({ baseUrl, onUnauthenticated, children }: ApiProvide
         return refreshPromise.current
     }, [baseUrl, setAccessToken])
 
+    const login = useCallback(async (mail: string, password: string): Promise<void> => {
+        const res = await fetch(`${baseUrl}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ grant_type: 'user_credentials', mail, password }),
+            credentials: 'include',
+        })
+
+        if (!res.ok) throw new Error(`HTTP_${res.status}`)
+
+        const data = (await res.json()) as { access_token: string }
+        setAccessToken(data.access_token)
+    }, [baseUrl, setAccessToken])
+
     const request = useCallback(
         async <T,>(path: string, init?: RequestInit): Promise<T> => {
             const buildHeaders = (token: string | null) => {
@@ -122,7 +139,7 @@ export function ApiProvider({ baseUrl, onUnauthenticated, children }: ApiProvide
     )
 
     return (
-        <ApiContext.Provider value={{ accessToken, setAccessToken, request }}>
+        <ApiContext.Provider value={{ accessToken, login, request }}>
             {children}
         </ApiContext.Provider>
     )
