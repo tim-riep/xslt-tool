@@ -11,12 +11,17 @@ if(!await folderExists(join(import.meta.dirname,"..","storage")))
 
 const app = await makeApp()
 
+// Inferred from the fully-registered app instance so route files get typed
+// access to plugin decorators (e.g. fastify.jwt, fastify.config).
 export type AppType = typeof app
 
+// Module-level singleton shared across all route handlers via named import.
 export const prisma = makePrisma(app)
 
+// Ensure all plugin registrations have settled before opening the socket.
 await app.ready()
 
+// Errors are handled by Fastify's built-in logger; no explicit catch needed.
 void app.listen({
     port:app.config.PORT
 })

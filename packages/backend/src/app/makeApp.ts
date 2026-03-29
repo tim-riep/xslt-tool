@@ -9,7 +9,7 @@ import fastifyCookie from "@fastify/cookie";
 export default async () : Promise<FastifyInstance> => {
     const app = fastify({
         logger:true,
-        bodyLimit:1024*1024*1024
+        bodyLimit:1024*1024*1024 // 1 GB — XSLT transformations may involve large XML documents
     })
 
     await app.register(fastifyEnv, {
