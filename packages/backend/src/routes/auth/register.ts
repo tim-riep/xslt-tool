@@ -7,6 +7,7 @@ export default (fastify: FastifyInstance) => {
         schema: {
             description: 'Register a user',
             tags: ["auth"],
+            security: [],
             body: {
                 type: "object",
                 properties: {

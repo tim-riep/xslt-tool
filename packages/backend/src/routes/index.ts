@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import transform from "./transform/index.js";
 import auth from "./auth/index.js";
+import users from "./users/index.js";
 import fastifyRateLimit from "@fastify/rate-limit";
 
 const routes = (fastify:FastifyInstance) => {
@@ -13,6 +14,9 @@ const routes = (fastify:FastifyInstance) => {
     })
     fastify.register(auth,{
         prefix:"auth"
+    })
+    fastify.register(users,{
+        prefix:"/users"
     })
 }
 

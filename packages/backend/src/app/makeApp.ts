@@ -24,6 +24,16 @@ export default async () : Promise<FastifyInstance> => {
             info:{
                 title:'XSL Tool API',
                 version:'0.0.1'
+            },
+            security: [{ bearerAuth: [] }],
+            components: {
+                securitySchemes: {
+                    bearerAuth: {
+                        type: "http",
+                        scheme: "bearer",
+                        bearerFormat: "JWT"
+                    }
+                }
             }
         }
     })

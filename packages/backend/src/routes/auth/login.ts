@@ -7,6 +7,7 @@ export default (fastify: AppType) => {
         schema: {
             description: 'Login',
             tags: ["auth"],
+            security: [],
             body: {
                 oneOf: [
                     {
@@ -27,12 +28,10 @@ export default (fastify: AppType) => {
                                 maxLength: 256
                             }
                         },
-                        required: ["mail", "password", "grant_type"],
-                        additionalProperties: false
+                        required: ["mail", "password", "grant_type"]
                     },
                     {
                         type: "object",
-                        additionalProperties: false,
                         required: ["grant_type"],
                         properties: {
                             grant_type: {
