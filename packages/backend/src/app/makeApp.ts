@@ -4,7 +4,8 @@ import configSchema from "./configSchema.js";
 import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUi from "@fastify/swagger-ui";
 import routes from "../routes/index.js";
-
+import fastifyJwt from "@fastify/jwt";
+import fastifyCookie from "@fastify/cookie";
 export default async () : Promise<FastifyInstance> => {
     const app = fastify({
         logger:true,
@@ -30,6 +31,15 @@ export default async () : Promise<FastifyInstance> => {
     await app.register(fastifySwaggerUi)
 
     app.register(routes)
+
+    await app.register(fastifyJwt,{
+        secret: app.config.JWT_PASSPHRASE as unknown as string
+    })
+
+    await app.register(fastifyCookie,{
+        secret: app.config.JWT_PASSPHRASE as unknown as string
+    })
+
 
     return app;
 }
