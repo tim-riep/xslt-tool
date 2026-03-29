@@ -4,3 +4,4 @@ dist
 storage
 samples
 .DS_store
+src/generated/prisma
