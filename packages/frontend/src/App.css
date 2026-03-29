@@ -117,15 +117,20 @@
 .panel {
   display: flex;
   flex-direction: column;
-  flex: 1;
   min-width: 0;
   overflow: hidden;
 }
 
 .divider {
-  width: 1px;
+  width: 5px;
   background: var(--border);
   flex-shrink: 0;
+  cursor: col-resize;
+  transition: background 0.15s;
+}
+
+.divider:hover {
+  background: var(--accent);
 }
 
 .tabs {

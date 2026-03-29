@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import CodeEditor from './CodeEditor'
 import './App.css'
 
@@ -7,6 +7,8 @@ type RightTab = 'result' | 'error'
 type Theme = 'light' | 'dark'
 
 export default function App() {
+  'use no memo'
+
   const [activeLeftTab, setActiveLeftTab] = useState<LeftTab>('input')
   const [activeRightTab, setActiveRightTab] = useState<RightTab>('result')
   const [inputValue, setInputValue] = useState('')
@@ -15,7 +17,10 @@ export default function App() {
   const [errorValue] = useState('')
   const [theme, setTheme] = useState<Theme>('light')
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [leftWidth, setLeftWidth] = useState(50)
   const settingsRef = useRef<HTMLDivElement>(null)
+  const isDragging = useRef(false)
+  const layoutRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -29,6 +34,34 @@ export default function App() {
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const onDividerMouseDown = useCallback(() => {
+    isDragging.current = true
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+  }, [])
+
+  useEffect(() => {
+    function onMouseMove(e: MouseEvent) {
+      if (!isDragging.current || !layoutRef.current) return
+      const rect = layoutRef.current.getBoundingClientRect()
+      const newWidth = ((e.clientX - rect.left) / rect.width) * 100
+      setLeftWidth(Math.min(Math.max(newWidth, 20), 80))
+    }
+
+    function onMouseUp() {
+      isDragging.current = false
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+
+    document.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mouseup', onMouseUp)
+    return () => {
+      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mouseup', onMouseUp)
+    }
   }, [])
 
   return (
@@ -69,8 +102,8 @@ export default function App() {
         </div>
       </header>
 
-      <div className="layout">
-        <div className="panel panel-left">
+      <div className="layout" ref={layoutRef}>
+        <div className="panel" style={{ width: `${leftWidth}%` }}>
           <div className="tabs">
             <button
               className={`tab ${activeLeftTab === 'input' ? 'tab--active' : ''}`}
@@ -95,9 +128,9 @@ export default function App() {
           </div>
         </div>
 
-        <div className="divider" />
+        <div className="divider" onMouseDown={onDividerMouseDown} />
 
-        <div className="panel panel-right">
+        <div className="panel" style={{ width: `${100 - leftWidth}%` }}>
           <div className="tabs">
             <button
               className={`tab ${activeRightTab === 'result' ? 'tab--active' : ''}`}
