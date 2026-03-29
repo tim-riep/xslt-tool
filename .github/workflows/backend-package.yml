@@ -1,0 +1,77 @@
+name: Package Backend
+
+on:
+  push:
+    tags:
+      - "backend-v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version label for the artifact (e.g. 1.2.3)"
+        required: true
+
+jobs:
+  package:
+    name: Build & Package
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: packages/backend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: packages/backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            # Strip the "backend-" prefix from the tag name
+            echo "value=${GITHUB_REF_NAME#backend-}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create zip archive
+        run: |
+          ZIP_NAME="backend-${{ steps.version.outputs.value }}.zip"
+          zip -r "../../$ZIP_NAME" \
+            dist/ \
+            prisma/ \
+            prisma.config.ts \
+            package.json \
+            package-lock.json
+          echo "ZIP_NAME=$ZIP_NAME" >> "$GITHUB_ENV"
+          echo "ZIP_PATH=../../$ZIP_NAME" >> "$GITHUB_ENV"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-${{ steps.version.outputs.value }}
+          path: ${{ env.ZIP_PATH }}
+          retention-days: 30
+
+      - name: Create GitHub Release
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Backend ${{ steps.version.outputs.value }}
+          files: ${{ env.ZIP_PATH }}
+          generate_release_notes: true
