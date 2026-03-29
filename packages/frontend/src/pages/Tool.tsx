@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
-import CodeEditor from '../CodeEditor'
+import { useState, useEffect, useRef, useCallback, lazy } from 'react'
 import '../App.css'
 
 type LeftTab = 'input' | 'stylesheet'
 type RightTab = 'result' | 'error'
 type Theme = 'light' | 'dark'
+
+const CodeEditor = lazy(()=>import("../CodeEditor"))
 
 export default function Tool() {
   'use no memo'
