@@ -109,6 +109,8 @@ export default (fastify: AppType) => {
                 }
             })
 
+            // 409 (not 401) deliberately — avoids revealing whether the email
+            // exists or the password is wrong (credential enumeration prevention).
             if (!user || !user.password)
                 return response.code(409).send({
                     error: "NO_MATCH"
@@ -124,16 +126,22 @@ export default (fastify: AppType) => {
             return response.status(200).setCookie('refresh_token', fastify.jwt.sign({
                 id: user.id
             }, {
+                // Refresh token lives longer than the access token; the client
+                // uses it to obtain a new access token without re-entering credentials.
                 expiresIn: "60m"
             }), {
                 httpOnly: true,
                 sameSite: "strict",
                 secure: fastify.config.SECURE_COOKIES as unknown as boolean,
+                // Scoped to this path so the cookie is never sent on regular API
+                // requests — only on explicit refresh calls to /auth/login.
                 path: "/auth/login",
             }).send({
                 access_token: fastify.jwt.sign({
                     id: user.id
                 }, {
+                    // Short-lived: clients must refresh frequently, limiting the
+                    // damage window if an access token is leaked.
                     expiresIn: "300s"
                 })
             })
@@ -149,6 +157,8 @@ export default (fastify: AppType) => {
                 return response.code(401).send({ error: "NO_MATCH" })
             }
 
+            // Rotate the refresh token on every use so a stolen token can only
+            // be used once before it is replaced.
             return response.status(200).setCookie('refresh_token', fastify.jwt.sign({
                 id: payload.id
             }, {
