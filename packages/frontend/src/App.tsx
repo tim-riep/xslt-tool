@@ -1,7 +1,10 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import Login from './pages/Login'
-import Register from './pages/Register'
 import Tool from './pages/Tool'
+import { lazy } from 'react'
+
+const Login = lazy(()=>import('./pages/Login'))
+const Register = lazy(()=>import('./pages/Register'))
+
 
 export default function App() {
   return (
