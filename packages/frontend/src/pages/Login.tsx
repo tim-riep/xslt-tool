@@ -1,10 +1,9 @@
+import { useNavigate } from 'react-router-dom'
 import './Auth.css'
 
-interface LoginProps {
-  onNavigateToRegister: () => void
-}
+export default function Login() {
+  const navigate = useNavigate()
 
-export default function Login({ onNavigateToRegister }: LoginProps) {
   return (
     <div className="auth-page">
       <div className="auth-card">
@@ -37,7 +36,7 @@ export default function Login({ onNavigateToRegister }: LoginProps) {
 
         <p className="auth-switch">
           Don't have an account?{' '}
-          <button className="auth-link" onClick={onNavigateToRegister}>
+          <button className="auth-link" onClick={() => { void navigate('/register') }}>
             Register
           </button>
         </p>
