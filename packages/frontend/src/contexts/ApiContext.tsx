@@ -1,32 +1,11 @@
 import {
-    createContext,
     useCallback,
-    useContext,
+    useLayoutEffect,
     useRef,
     useState,
     type ReactNode,
 } from 'react'
-
-export type ApiRequest = <T>(path: string, init?: RequestInit) => Promise<T>
-
-interface ApiContextValue {
-    /** The current access token, or null when not authenticated. */
-    accessToken: string | null
-    /**
-     * Logs in with email and password. Stores the returned access token
-     * automatically. Throws if the credentials are invalid (non-2xx response).
-     */
-    login: (mail: string, password: string) => Promise<void>
-    /**
-     * Makes an authenticated request to the API.
-     *
-     * Automatically attaches the Bearer token. On a 401 response it attempts
-     * a single token refresh via the refresh_token cookie. If the refresh
-     * succeeds the original request is retried with the new token. If the
-     * refresh also fails, `onUnauthenticated` is called and an error is thrown.
-     */
-    request: ApiRequest
-}
+import { ApiContext } from './useApi'
 
 interface ApiProviderProps {
     /** Base URL of the API, e.g. "http://localhost:3000" */
@@ -38,8 +17,6 @@ interface ApiProviderProps {
     onUnauthenticated: () => void
     children: ReactNode
 }
-
-const ApiContext = createContext<ApiContextValue | null>(null)
 
 export function ApiProvider({ baseUrl, onUnauthenticated, children }: ApiProviderProps) {
     const [accessToken, setAccessTokenState] = useState<string | null>(null)
@@ -55,7 +32,9 @@ export function ApiProvider({ baseUrl, onUnauthenticated, children }: ApiProvide
     // Always call the latest onUnauthenticated without adding it to useCallback
     // dependency arrays (avoids re-creating request on every render cycle).
     const onUnauthenticatedRef = useRef(onUnauthenticated)
-    onUnauthenticatedRef.current = onUnauthenticated
+    useLayoutEffect(() => {
+        onUnauthenticatedRef.current = onUnauthenticated
+    })
 
     const setAccessToken = useCallback((token: string) => {
         tokenRef.current = token
@@ -96,7 +75,7 @@ export function ApiProvider({ baseUrl, onUnauthenticated, children }: ApiProvide
             credentials: 'include',
         })
 
-        if (!res.ok) throw new Error(`HTTP_${res.status}`)
+        if (!res.ok) throw new Error(`HTTP_${String(res.status)}`)
 
         const data = (await res.json()) as { access_token: string }
         setAccessToken(data.access_token)
@@ -127,7 +106,7 @@ export function ApiProvider({ baseUrl, onUnauthenticated, children }: ApiProvide
                 res = await execute(newToken)
             }
 
-            if (!res.ok) throw new Error(`HTTP_${res.status}`)
+            if (!res.ok) throw new Error(`HTTP_${String(res.status)}`)
 
             const contentType = res.headers.get('content-type')
             if (contentType?.includes('application/json')) {
@@ -143,13 +122,4 @@ export function ApiProvider({ baseUrl, onUnauthenticated, children }: ApiProvide
             {children}
         </ApiContext.Provider>
     )
-}
-
-/**
- * Returns the API context value. Must be used inside an `<ApiProvider>`.
- */
-export function useApi(): ApiContextValue {
-    const ctx = useContext(ApiContext)
-    if (!ctx) throw new Error('useApi must be called inside <ApiProvider>')
-    return ctx
 }

@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { EditorView, lineNumbers, keymap, drawSelection } from '@codemirror/view'
-import { EditorState } from '@codemirror/state'
+import { Compartment, EditorState } from '@codemirror/state'
 import { xml } from '@codemirror/lang-xml'
 import { foldGutter, foldKeymap, indentOnInput, syntaxHighlighting, defaultHighlightStyle, bracketMatching } from '@codemirror/language'
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
@@ -16,6 +16,14 @@ export default function CodeEditor({ value = '', onChange, readOnly = false }: C
 
   const containerRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
+  const onChangeRef = useRef(onChange)
+  const editableCompartment = useRef(new Compartment())
+  const initialValue = useRef(value)
+  const initialReadOnly = useRef(readOnly)
+
+  useLayoutEffect(() => {
+    onChangeRef.current = onChange
+  })
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -30,7 +38,7 @@ export default function CodeEditor({ value = '', onChange, readOnly = false }: C
       history(),
       keymap.of([...defaultKeymap, ...historyKeymap, ...foldKeymap]),
       xml(),
-      EditorView.editable.of(!readOnly),
+      editableCompartment.current.of(EditorView.editable.of(!initialReadOnly.current)),
       EditorView.theme({
         '&': { height: '100%', fontSize: '13px', background: 'var(--bg)' },
         '.cm-scroller': { overflow: 'auto', fontFamily: 'ui-monospace, Consolas, monospace' },
@@ -39,18 +47,15 @@ export default function CodeEditor({ value = '', onChange, readOnly = false }: C
         '.cm-activeLineGutter': { background: 'var(--accent-bg)' },
         '.cm-activeLine': { background: 'var(--accent-bg)' },
       }),
+      EditorView.updateListener.of((update) => {
+        if (update.docChanged) {
+          onChangeRef.current?.(update.state.doc.toString())
+        }
+      }),
     ]
 
-    if (onChange) {
-      extensions.push(EditorView.updateListener.of((update) => {
-        if (update.docChanged) {
-          onChange(update.state.doc.toString())
-        }
-      }))
-    }
-
     const view = new EditorView({
-      state: EditorState.create({ doc: value, extensions }),
+      state: EditorState.create({ doc: initialValue.current, extensions }),
       parent: containerRef.current,
     })
 
@@ -70,6 +75,14 @@ export default function CodeEditor({ value = '', onChange, readOnly = false }: C
       view.dispatch({ changes: { from: 0, to: current.length, insert: value } })
     }
   }, [value])
+
+  useEffect(() => {
+    const view = viewRef.current
+    if (!view) return
+    view.dispatch({
+      effects: editableCompartment.current.reconfigure(EditorView.editable.of(!readOnly)),
+    })
+  }, [readOnly])
 
   return <div ref={containerRef} style={{ height: '100%', width: '100%' }} />
 }

@@ -1,4 +1,4 @@
-import type { ApiRequest } from '../contexts/ApiContext'
+import type { ApiRequest } from '../contexts/useApi'
 
 export interface User {
     id: number
