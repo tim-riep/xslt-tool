@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import CodeEditor from './CodeEditor'
+import Login from './pages/Login'
+import Register from './pages/Register'
 import './App.css'
 
+type Page = 'login' | 'register' | 'app'
 type LeftTab = 'input' | 'stylesheet'
 type RightTab = 'result' | 'error'
 type Theme = 'light' | 'dark'
@@ -9,6 +12,7 @@ type Theme = 'light' | 'dark'
 export default function App() {
   'use no memo'
 
+  const [page, setPage] = useState<Page>('login')
   const [activeLeftTab, setActiveLeftTab] = useState<LeftTab>('input')
   const [activeRightTab, setActiveRightTab] = useState<RightTab>('result')
   const [inputValue, setInputValue] = useState('')
@@ -63,6 +67,9 @@ export default function App() {
       document.removeEventListener('mouseup', onMouseUp)
     }
   }, [])
+
+  if (page === 'login') return <Login onNavigateToRegister={() => setPage('register')} />
+  if (page === 'register') return <Register onNavigateToLogin={() => setPage('login')} />
 
   return (
     <div className="app">
