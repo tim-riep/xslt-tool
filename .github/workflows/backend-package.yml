@@ -19,6 +19,9 @@ jobs:
       run:
         working-directory: packages/backend
 
+    env:
+      DATABASE_URL: postgresql://dummy:dummy@localhost/dummy
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -55,14 +58,14 @@ jobs:
       - name: Create zip archive
         run: |
           ZIP_NAME="backend-${{ steps.version.outputs.value }}.zip"
-          zip -r "../../$ZIP_NAME" \
+          zip -r "$ZIP_NAME" \
             dist/ \
             prisma/ \
             prisma.config.ts \
             package.json \
             package-lock.json
           echo "ZIP_NAME=$ZIP_NAME" >> "$GITHUB_ENV"
-          echo "ZIP_PATH=../../$ZIP_NAME" >> "$GITHUB_ENV"
+          echo "ZIP_PATH=packages/backend/$ZIP_NAME" >> "$GITHUB_ENV"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
