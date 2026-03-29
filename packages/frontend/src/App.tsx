@@ -37,7 +37,7 @@ export default function App() {
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    return () => { document.removeEventListener('mousedown', handleClickOutside) }
   }, [])
 
   const onDividerMouseDown = useCallback(() => {
@@ -68,8 +68,8 @@ export default function App() {
     }
   }, [])
 
-  if (page === 'login') return <Login onNavigateToRegister={() => setPage('register')} />
-  if (page === 'register') return <Register onNavigateToLogin={() => setPage('login')} />
+  if (page === 'login') return <Login onNavigateToRegister={() => { setPage('register') }} />
+  if (page === 'register') return <Register onNavigateToLogin={() => { setPage('login') }} />
 
   return (
     <div className="app">
@@ -80,7 +80,7 @@ export default function App() {
           <button
             className="header-settings"
             aria-label="Settings"
-            onClick={() => setSettingsOpen((o) => !o)}
+            onClick={() => { setSettingsOpen((o) => !o) }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="3" />
@@ -93,13 +93,13 @@ export default function App() {
               <div className="settings-theme-buttons">
                 <button
                   className={`settings-theme-btn ${theme === 'light' ? 'settings-theme-btn--active' : ''}`}
-                  onClick={() => setTheme('light')}
+                  onClick={() => { setTheme('light') }}
                 >
                   Light
                 </button>
                 <button
                   className={`settings-theme-btn ${theme === 'dark' ? 'settings-theme-btn--active' : ''}`}
-                  onClick={() => setTheme('dark')}
+                  onClick={() => { setTheme('dark') }}
                 >
                   Dark
                 </button>
@@ -110,17 +110,17 @@ export default function App() {
       </header>
 
       <div className="layout" ref={layoutRef}>
-        <div className="panel" style={{ width: `${leftWidth}%` }}>
+        <div className="panel" style={{ width: `${String(leftWidth)}%` }}>
           <div className="tabs">
             <button
               className={`tab ${activeLeftTab === 'input' ? 'tab--active' : ''}`}
-              onClick={() => setActiveLeftTab('input')}
+              onClick={() => { setActiveLeftTab('input') }}
             >
               Input
             </button>
             <button
               className={`tab ${activeLeftTab === 'stylesheet' ? 'tab--active' : ''}`}
-              onClick={() => setActiveLeftTab('stylesheet')}
+              onClick={() => { setActiveLeftTab('stylesheet') }}
             >
               XSL Stylesheet
             </button>
@@ -137,17 +137,17 @@ export default function App() {
 
         <div className="divider" onMouseDown={onDividerMouseDown} />
 
-        <div className="panel" style={{ width: `${100 - leftWidth}%` }}>
+        <div className="panel" style={{ width: `${String(100 - leftWidth)}%` }}>
           <div className="tabs">
             <button
               className={`tab ${activeRightTab === 'result' ? 'tab--active' : ''}`}
-              onClick={() => setActiveRightTab('result')}
+              onClick={() => { setActiveRightTab('result') }}
             >
               Result
             </button>
             <button
               className={`tab ${activeRightTab === 'error' ? 'tab--active' : ''}`}
-              onClick={() => setActiveRightTab('error')}
+              onClick={() => { setActiveRightTab('error') }}
             >
               Error
             </button>

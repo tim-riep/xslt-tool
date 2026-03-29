@@ -60,7 +60,7 @@ export default function CodeEditor({ value = '', onChange, readOnly = false }: C
       view.destroy()
       viewRef.current = null
     }
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const view = viewRef.current
