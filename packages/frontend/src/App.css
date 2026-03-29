@@ -1,7 +1,68 @@
-.layout {
+.app {
   display: flex;
+  flex-direction: column;
   height: 100svh;
   width: 100%;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  height: 52px;
+  border-bottom: 1px solid var(--border);
+  background: #2d1f4e;
+  flex-shrink: 0;
+}
+
+.header-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #f3f4f6;
+  flex: 1;
+  text-align: center;
+}
+
+.header-transform {
+  padding: 6px 16px;
+  font-size: 13px;
+  font-family: var(--sans);
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.header-transform:hover {
+  opacity: 0.85;
+}
+
+.header-settings {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text);
+  transition: background 0.15s, color 0.15s;
+}
+
+.header-settings:hover {
+  background: var(--accent-bg);
+  color: var(--text-h);
+}
+
+.layout {
+  display: flex;
+  flex: 1;
   overflow: hidden;
 }
 
