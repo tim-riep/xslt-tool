@@ -106,7 +106,18 @@ export function ApiProvider({ baseUrl, onUnauthenticated, children }: ApiProvide
                 res = await execute(newToken)
             }
 
-            if (!res.ok) throw new Error(`HTTP_${String(res.status)}`)
+            if (!res.ok)
+            {
+                const json = await res.json() as unknown as {
+                    errorMessage?:string
+                }
+
+                if(json["errorMessage"]) {
+                    throw new Error(json.errorMessage)
+                }
+
+                throw new Error(`HTTP_${String(res.status)}`)
+            }
 
             const contentType = res.headers.get('content-type')
             if (contentType?.includes('application/json')) {

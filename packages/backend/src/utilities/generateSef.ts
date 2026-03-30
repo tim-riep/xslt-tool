@@ -7,9 +7,11 @@ import { join } from "node:path"
 // disk before compilation. A UUID-based filename prevents collisions between
 // concurrent requests.
 const executeXslt3 = async (uuid: string) => {
-    return new Promise<void>((resolve) => {
+    return new Promise<void>((resolve,reject) => {
         // -nogo: compile-only mode — produce the SEF without running a transformation.
-        exec(`npx xslt3 -xsl:${join(import.meta.dirname, '..', '..', 'storage', `${uuid}.xsl`)} -export:${join(import.meta.dirname, '..', '..', 'storage', `${uuid}.sef.json`)} -nogo`, () => {
+        exec(`npx xslt3 -xsl:${join(import.meta.dirname, '..', '..', 'storage', `${uuid}.xsl`)} -export:${join(import.meta.dirname, '..', '..', 'storage', `${uuid}.sef.json`)} -nogo`, (err) => {
+            if(err)
+                reject(err)
             resolve()
         })
     })

@@ -1,11 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useApi } from '../contexts/useApi'
 import './Auth.css'
 
 export default function Register() {
   const navigate = useNavigate()
-  const { request } = useApi()
 
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -34,7 +32,7 @@ export default function Register() {
         setLoading(false)
         return
       }
-      navigate('/login')
+      await navigate('/login')
     } catch {
       setError('Registration failed. Please try again.')
       setLoading(false)
