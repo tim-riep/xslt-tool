@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, lazy } from 'react'
 import '../App.css'
+import { useApi } from '../contexts/useApi'
 
 type LeftTab = 'input' | 'stylesheet'
 type RightTab = 'result' | 'error'
@@ -7,15 +8,30 @@ type Theme = 'light' | 'dark'
 
 const CodeEditor = lazy(()=>import("../CodeEditor"))
 
+const toBase64 = (str: string) => {
+  const bytes = new TextEncoder().encode(str)
+  let binary = ''
+  bytes.forEach(b => { binary += String.fromCharCode(b) })
+  return btoa(binary)
+}
+
+const fromBase64 = (str: string) => {
+  const binary = atob(str)
+  const bytes = Uint8Array.from(binary, c => c.charCodeAt(0))
+  return new TextDecoder().decode(bytes)
+}
+
 export default function Tool() {
   'use no memo'
 
+  const { request } = useApi()
   const [activeLeftTab, setActiveLeftTab] = useState<LeftTab>('input')
   const [activeRightTab, setActiveRightTab] = useState<RightTab>('result')
   const [inputValue, setInputValue] = useState('')
   const [stylesheetValue, setStylesheetValue] = useState('')
-  const [resultValue] = useState('')
-  const [errorValue] = useState('')
+  const [resultValue, setResultValue] = useState('')
+  const [errorValue, setErrorValue] = useState('')
+  const [transforming, setTransforming] = useState(false)
   const [theme, setTheme] = useState<Theme>('light')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [leftWidth, setLeftWidth] = useState(50)
@@ -36,6 +52,29 @@ export default function Tool() {
     document.addEventListener('mousedown', handleClickOutside)
     return () => { document.removeEventListener('mousedown', handleClickOutside) }
   }, [])
+
+  const handleTransform = useCallback(async () => {
+    setTransforming(true)
+    setResultValue('')
+    setErrorValue('')
+    try {
+      const res = await request<{ transformedXml: string }>('/transform/adhoc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          xml: toBase64(inputValue),
+          stylesheet: toBase64(stylesheetValue),
+        }),
+      })
+      setResultValue(fromBase64(res.transformedXml))
+      setActiveRightTab('result')
+    } catch (err) {
+      setErrorValue(err instanceof Error ? err.message : String(err))
+      setActiveRightTab('error')
+    } finally {
+      setTransforming(false)
+    }
+  }, [request, inputValue, stylesheetValue])
 
   const onDividerMouseDown = useCallback(() => {
     isDragging.current = true
@@ -69,7 +108,13 @@ export default function Tool() {
     <div className="app">
       <header className="header">
         <span className="header-title">XSLT Transformer</span>
-        <button className="header-transform">Transform</button>
+        <button
+          className="header-transform"
+          onClick={() => { void handleTransform() }}
+          disabled={transforming}
+        >
+          {transforming ? 'Transforming…' : 'Transform'}
+        </button>
         <div className="settings-wrapper" ref={settingsRef}>
           <button
             className="header-settings"

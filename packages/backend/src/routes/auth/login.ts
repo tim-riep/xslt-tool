@@ -1,6 +1,6 @@
 import { type FastifyRequest } from "fastify";
 import { prisma, type AppType } from "../../index.js";
-import { verify } from "argon2";
+import { compare } from "bcryptjs";
 
 export default (fastify: AppType) => {
     fastify.post("/", {
@@ -116,7 +116,7 @@ export default (fastify: AppType) => {
                     error: "NO_MATCH"
                 })
 
-            if (!await verify(user.password, request.body.password))
+            if (!await compare(request.body.password, user.password))
                 return response.code(409).send({
                     error: "NO_MATCH"
                 })

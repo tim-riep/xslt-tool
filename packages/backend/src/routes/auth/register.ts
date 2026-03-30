@@ -1,6 +1,6 @@
 import { type FastifyInstance, type FastifyRequest } from "fastify";
 import { prisma } from "../../index.js";
-import { hash } from "argon2";
+import { hash } from "bcryptjs";
 
 export default (fastify: FastifyInstance) => {
     fastify.post("/", {
@@ -88,10 +88,10 @@ export default (fastify: FastifyInstance) => {
                 lastName:request.body.lastName,
                 email:request.body.mail,
                 firstName:request.body.firstName ?? null,
-                password:await hash(request.body.password)
+                password:await hash(request.body.password, 10)
             }
         })
-        return response.status(201)
+        return response.code(201).send()
 
     })
 }

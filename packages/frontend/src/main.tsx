@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.tsx'
+import { ApiProvider } from './contexts/ApiContext'
 
 const root = document.getElementById('root')
 
@@ -12,7 +13,12 @@ if(!root)
 createRoot(root).render(
   <StrictMode>
     <BrowserRouter>
-      <App />
+      <ApiProvider
+        baseUrl="http://localhost:3000"
+        onUnauthenticated={() => { window.location.replace('/login') }}
+      >
+        <App />
+      </ApiProvider>
     </BrowserRouter>
   </StrictMode>,
 )
