@@ -6,10 +6,16 @@ import fastifySwaggerUi from "@fastify/swagger-ui";
 import routes from "../routes/index.js";
 import fastifyJwt from "@fastify/jwt";
 import fastifyCookie from "@fastify/cookie";
+import fastifyCors from "@fastify/cors";
 export default async () : Promise<FastifyInstance> => {
     const app = fastify({
         logger:true,
         bodyLimit:1024*1024*1024 // 1 GB — XSLT transformations may involve large XML documents
+    })
+
+    await app.register(fastifyCors, {
+        origin: true,
+        credentials: true,
     })
 
     await app.register(fastifyEnv, {
