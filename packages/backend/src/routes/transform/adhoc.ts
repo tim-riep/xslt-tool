@@ -33,6 +33,14 @@ export default (fastify: FastifyInstance) => {
                             description: "Transformed XML as base64 string"
                         }
                     }
+                },
+                400: {
+                    type: "object",
+                    properties: {
+                        errorMessage: {
+                            type: "string"
+                        }
+                    }
                 }
             }
         }
@@ -41,17 +49,46 @@ export default (fastify: FastifyInstance) => {
             xml: string,
             stylesheet: string
         }
-    }>) => {
+    }>, reply) => {
         const { xml, stylesheet } = request.body
-        const sef = await generateSef(Buffer.from(stylesheet, "base64").toString("utf-8"))
-        const data = SaxonJS.transform({
-            stylesheetText: sef,
-            sourceText: Buffer.from(xml, "base64").toString("utf-8"),
-            destination: "serialized"
-        })
 
-        return {
-            transformedXml: Buffer.from(data.principalResult, "utf-8").toString("base64")
+        let sef: string = ""
+
+        try {
+            sef = await generateSef(Buffer.from(stylesheet, "base64").toString("utf-8"))
         }
+        catch (error: unknown) {
+
+            if (error instanceof Error) {
+
+                return reply.status(400).send({
+                    errorMessage: error.message.replace(/file:\/\/\/.*?\.xsl/g, 'file:///[REDACTED].xsl').split('\n').slice(1).join('\n')
+                })
+            }
+        }
+
+        try {
+            const data = SaxonJS.transform({
+                stylesheetText: sef,
+                sourceText: Buffer.from(xml, "base64").toString("utf-8"),
+                destination: "serialized"
+            })
+
+            return {
+                transformedXml: Buffer.from(data.principalResult, "utf-8").toString("base64")
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                return reply.status(400).send({
+                    errorMessage: error.message
+                })
+            }
+            return reply.status(400).send({
+                errorMessage: ""
+            })
+        }
+
+
+
     })
 }
