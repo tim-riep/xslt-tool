@@ -1,9 +1,11 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import SaxonJS from "saxon-js";
 import generateSef from "../../utilities/generateSef.js";
+import { authenticate } from "../../middleware/authenticate.js";
 
 export default (fastify: FastifyInstance) => {
     fastify.post("/", {
+        preHandler: [authenticate],
         schema: {
             description: "Run adhoc transformation",
             tags: ["transform"],
