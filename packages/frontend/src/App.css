@@ -41,6 +41,22 @@
   opacity: 0.85;
 }
 
+.header-logout {
+  padding: 6px 14px;
+  font-size: 13px;
+  font-family: var(--sans);
+  background: none;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.header-logout:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
 .header-settings {
   display: flex;
   align-items: center;

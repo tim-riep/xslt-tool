@@ -24,7 +24,7 @@ const fromBase64 = (str: string) => {
 export default function Tool() {
   'use no memo'
 
-  const { request } = useApi()
+  const { request, logout } = useApi()
   const [activeLeftTab, setActiveLeftTab] = useState<LeftTab>('input')
   const [activeRightTab, setActiveRightTab] = useState<RightTab>('result')
   const [inputValue, setInputValue] = useState('')
@@ -114,6 +114,9 @@ export default function Tool() {
           disabled={transforming}
         >
           {transforming ? 'Transforming…' : 'Transform'}
+        </button>
+        <button className="header-logout" onClick={logout}>
+          Logout
         </button>
         <div className="settings-wrapper" ref={settingsRef}>
           <button

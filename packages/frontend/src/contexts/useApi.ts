@@ -11,6 +11,11 @@ export interface ApiContextValue {
      */
     login: (mail: string, password: string) => Promise<void>
     /**
+     * Clears the access token, effectively logging the user out.
+     * The protected route will redirect to /login immediately.
+     */
+    logout: () => void
+    /**
      * Makes an authenticated request to the API.
      *
      * Automatically attaches the Bearer token. On a 401 response it attempts

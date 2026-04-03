@@ -41,6 +41,11 @@ export function ApiProvider({ baseUrl, onUnauthenticated, children }: ApiProvide
         setAccessTokenState(token)
     }, [])
 
+    const logout = useCallback(() => {
+        tokenRef.current = null
+        setAccessTokenState(null)
+    }, [])
+
     const refresh = useCallback(async (): Promise<string | null> => {
         if (refreshPromise.current) return refreshPromise.current
 
@@ -129,7 +134,7 @@ export function ApiProvider({ baseUrl, onUnauthenticated, children }: ApiProvide
     )
 
     return (
-        <ApiContext.Provider value={{ accessToken, login, request }}>
+        <ApiContext.Provider value={{ accessToken, login, logout, request }}>
             {children}
         </ApiContext.Provider>
     )
