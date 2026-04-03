@@ -42,9 +42,14 @@ export function ApiProvider({ baseUrl, onUnauthenticated, children }: ApiProvide
     }, [])
 
     const logout = useCallback(() => {
+        void fetch(`${baseUrl}/auth/logout`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${String(tokenRef.current)}` },
+            credentials: 'include',
+        })
         tokenRef.current = null
         setAccessTokenState(null)
-    }, [])
+    }, [baseUrl])
 
     const refresh = useCallback(async (): Promise<string | null> => {
         if (refreshPromise.current) return refreshPromise.current
