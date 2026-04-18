@@ -1,5 +1,6 @@
 import {
     useCallback,
+    useEffect,
     useLayoutEffect,
     useRef,
     useState,
@@ -20,6 +21,7 @@ interface ApiProviderProps {
 
 export function ApiProvider({ baseUrl, onUnauthenticated, children }: ApiProviderProps) {
     const [accessToken, setAccessTokenState] = useState<string | null>(null)
+    const [bootstrapped, setBootstrapped] = useState(false)
 
     // Mirror of accessToken as a ref so the request closure always reads the
     // latest value without needing to be re-created on every token change.
@@ -62,10 +64,7 @@ export function ApiProvider({ baseUrl, onUnauthenticated, children }: ApiProvide
                 credentials: 'include',
             })
 
-            if (!res.ok) {
-                onUnauthenticatedRef.current()
-                return null
-            }
+            if (!res.ok) return null
 
             const data = (await res.json()) as { access_token: string }
             setAccessToken(data.access_token)
@@ -112,7 +111,10 @@ export function ApiProvider({ baseUrl, onUnauthenticated, children }: ApiProvide
 
             if (res.status === 401) {
                 const newToken = await refresh()
-                if (!newToken) throw new Error('UNAUTHENTICATED')
+                if (!newToken) {
+                    onUnauthenticatedRef.current()
+                    throw new Error('UNAUTHENTICATED')
+                }
                 res = await execute(newToken)
             }
 
@@ -138,8 +140,15 @@ export function ApiProvider({ baseUrl, onUnauthenticated, children }: ApiProvide
         [baseUrl, refresh],
     )
 
+    const didBootstrapRef = useRef(false)
+    useEffect(() => {
+        if (didBootstrapRef.current) return
+        didBootstrapRef.current = true
+        void refresh().finally(() => { setBootstrapped(true) })
+    }, [refresh])
+
     return (
-        <ApiContext.Provider value={{ accessToken, login, logout, request }}>
+        <ApiContext.Provider value={{ accessToken, bootstrapped, login, logout, request }}>
             {children}
         </ApiContext.Provider>
     )

@@ -4,14 +4,11 @@ import { join } from "node:path";
 import folderExists from "./utilities/folderExists.js";
 import makePrisma from "./prisma.js";
 
-if(!await folderExists(join(import.meta.dirname,"..","storage")))
-{
-    await mkdir(join(import.meta.dirname,"..","storage"))
-}
-
-if(!await folderExists(join(import.meta.dirname,"..","public")))
-{
-    await mkdir(join(import.meta.dirname,"..","public"))
+for (const folder of ["storage", "storage/workspaces", "storage/adhoc", "public"]) {
+    const path = join(import.meta.dirname, "..", folder)
+    if (!await folderExists(path)) {
+        await mkdir(path, { recursive: true })
+    }
 }
 
 const app = await makeApp()

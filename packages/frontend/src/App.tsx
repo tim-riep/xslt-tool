@@ -7,7 +7,8 @@ const Login = lazy(()=>import('./pages/Login'))
 const Register = lazy(()=>import('./pages/Register'))
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { accessToken } = useApi()
+  const { accessToken, bootstrapped } = useApi()
+  if (!bootstrapped) return null
   if (!accessToken) return <Navigate to="/login" replace />
   return children
 }

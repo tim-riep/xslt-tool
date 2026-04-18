@@ -135,7 +135,7 @@ export default (fastify: AppType) => {
                 secure: fastify.config.SECURE_COOKIES as unknown as boolean,
                 // Scoped to this path so the cookie is never sent on regular API
                 // requests — only on explicit refresh calls to /auth/login.
-                path: "/auth/login",
+                path: "/api/auth/login",
             }).send({
                 access_token: fastify.jwt.sign({
                     id: user.id
@@ -167,7 +167,7 @@ export default (fastify: AppType) => {
                 httpOnly: true,
                 sameSite: "strict",
                 secure: fastify.config.SECURE_COOKIES as unknown as boolean,
-                path: "/auth/login",
+                path: "/api/auth/login",
             }).send({
                 access_token: fastify.jwt.sign({
                     id: payload.id
