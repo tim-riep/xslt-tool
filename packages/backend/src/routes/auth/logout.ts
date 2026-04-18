@@ -25,7 +25,7 @@ export default (fastify: AppType) => {
             httpOnly: true,
             sameSite: "strict",
             secure: fastify.config.SECURE_COOKIES as unknown as boolean,
-            path: "/auth/login",
+            path: "/api/auth/login",
         }).send({
             message: "LOGGED_OUT"
         })

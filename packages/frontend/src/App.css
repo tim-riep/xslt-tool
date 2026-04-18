@@ -41,6 +41,27 @@
   opacity: 0.85;
 }
 
+.header-save {
+  padding: 6px 16px;
+  font-size: 13px;
+  font-family: var(--sans);
+  background: none;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.header-save:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.header-save:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .header-logout {
   padding: 6px 14px;
   font-size: 13px;

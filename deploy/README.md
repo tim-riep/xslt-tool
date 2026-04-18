@@ -52,6 +52,39 @@ npx prisma migrate deploy
 
 `npm ci` installs both prod and dev deps — Prisma CLI (a devDependency) is needed for `migrate deploy`. If you'd rather keep devDeps off the server, move `prisma` to `dependencies` in [packages/backend/package.json](../packages/backend/package.json) before building.
 
+## Workspace sandboxing (caveat)
+
+Workspace transforms run `xslt3` as a subprocess. It has the backend's full filesystem access, so an XSLT could in principle read files outside its workspace (another user's `storage/workspaces/<id>/`, or anything else the backend user can read).
+
+We mitigate this with a static regex scan that runs on every file save **and** before every workspace transform:
+
+- `xsl:import` / `xsl:include` / `xsl:use-package` / `xsl:import-schema` href
+- `xsl:result-document` href
+- `document('literal')` / `doc('literal')`
+- `unparsed-text[-lines|-available]?('literal')`
+
+Any literal URI that resolves outside the workspace folder is rejected with `UNSAFE_IMPORT`.
+
+**Residual risk:** dynamically computed URIs (e.g. `document($var)` where `$var` is built at runtime) cannot be checked statically. For multi-user production deployments where users don't fully trust each other, run the backend inside a container/namespace where only `packages/backend/storage/workspaces/` is visible — Saxon physically can't reach other folders then.
+
+## 1b. Persistent storage
+
+The backend writes user workspaces and adhoc auto-save state to the `storage/` folder next to the process's working directory:
+
+```
+storage/
+├── workspaces/<workspaceId>/   one folder per workspace (XSLT + XML files, colocated so <xsl:import> works)
+└── adhoc/<userId>/             per-user auto-saved scratch (input.xml + stylesheet.xsl)
+```
+
+These folders are created on demand on first use. **They must live on a persistent volume** — treat them like a database directory:
+
+- Back them up alongside Postgres (they hold user content that's not in the DB).
+- Don't mount them on ephemeral container FS.
+- The process needs write access to the working directory.
+
+When resetting a deployment, wipe both the `Workspace` table and `storage/workspaces/` / `storage/adhoc/` together — the DB row and the folder are linked by id and will drift if cleaned up separately.
+
 ## 2. Configure backend env
 
 For a TLS deployment behind Caddy set the following in `packages/backend/.env`:

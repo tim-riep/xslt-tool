@@ -8,9 +8,21 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  email String? @unique
-  firstName String?
-  lastName String
-  password String?
+  id         Int         @id @default(autoincrement())
+  email      String?     @unique
+  firstName  String?
+  lastName   String
+  password   String?
+  workspaces Workspace[]
+}
+
+model Workspace {
+  id        Int      @id @default(autoincrement())
+  name      String
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, name])
 }

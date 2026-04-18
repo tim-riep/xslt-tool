@@ -6,6 +6,12 @@ export interface ApiContextValue {
     /** The current access token, or null when not authenticated. */
     accessToken: string | null
     /**
+     * False until the initial silent refresh attempt has completed. Consumers
+     * gating on `accessToken` should wait for this before redirecting to /login,
+     * otherwise a page reload flashes users out even when a refresh cookie is present.
+     */
+    bootstrapped: boolean
+    /**
      * Logs in with email and password. Stores the returned access token
      * automatically. Throws if the credentials are invalid (non-2xx response).
      */
