@@ -1,0 +1,42 @@
+# XSLT Tool — Caddy reverse proxy config.
+#
+# Two site blocks are provided:
+#   - xslt.localhost: local / on-prem deployment using Caddy's internal CA
+#     (self-signed root). Run `caddy trust` once to install the root CA into
+#     your OS trust store so browsers accept the cert.
+#   - xslt.example.com: template for public deployment with automatic
+#     Let's Encrypt certs. Rename the domain and remove the `tls internal`
+#     directive; Caddy will obtain/renew certs automatically as long as
+#     ports 80 and 443 are reachable and DNS points here.
+#
+# Fastify listens on :3000 (configurable via PORT env var) and serves both
+# the /api routes and the static frontend from packages/backend/public/.
+# Caddy terminates TLS and forwards everything to Fastify on one origin —
+# so the browser never sees cross-origin requests and CORS is a non-issue.
+
+:443 {
+	tls internal
+
+	encode gzip zstd
+
+	reverse_proxy localhost:3000
+}
+
+# HTTP → HTTPS redirect (sonst landen Aufrufe auf http://<ip>/ im Leeren)
+:80 {
+	redir https://{host}{uri} permanent
+}
+
+# Alternativen:
+#
+# Nur eine bestimmte IP bedienen:
+#   https://192.168.1.100 {
+#       tls internal
+#       reverse_proxy localhost:3000
+#   }
+#
+# Public deployment mit Let's Encrypt:
+#   xslt.example.com {
+#       encode gzip zstd
+#       reverse_proxy localhost:3000
+#   }

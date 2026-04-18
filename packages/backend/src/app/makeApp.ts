@@ -12,13 +12,20 @@ import { join } from "node:path";
 export default async () : Promise<FastifyInstance> => {
     const app = fastify({
         logger:true,
-        bodyLimit:1024*1024*1024 // 1 GB — XSLT transformations may involve large XML documents
+        bodyLimit:1024*1024*1024, // 1 GB — XSLT transformations may involve large XML documents
+        trustProxy: true // Required behind Caddy/nginx so X-Forwarded-Proto is honoured (SECURE_COOKIES)
     })
 
-    await app.register(fastifyCors, {
-        origin: true,
-        credentials: true,
-    })
+    if (process.env.NODE_ENV !== "production") {
+        // In production everything is served through Caddy on a single
+        // origin — CORS is a no-op. Dev uses Vite's proxy, but keep CORS
+        // enabled so direct hits from other origins (Swagger UI, curl from
+        // a browser tab, ad-hoc tools) work.
+        await app.register(fastifyCors, {
+            origin: true,
+            credentials: true,
+        })
+    }
 
     await app.register(fastifyEnv, {
         confKey:'config',

@@ -28,5 +28,6 @@ await app.ready()
 
 // Errors are handled by Fastify's built-in logger; no explicit catch needed.
 void app.listen({
-    port:app.config.PORT
+    port:app.config.PORT,
+    host:app.config.HOST as unknown as string
 })

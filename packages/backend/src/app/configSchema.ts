@@ -6,6 +6,7 @@ declare module 'fastify' {
   interface FastifyInstance {
     config: {
       PORT:number,
+      HOST:string,
       DATABASE_URL:string,
       JWT_PASSPHRASE:string,
       SECURE_COOKIES:boolean
@@ -15,11 +16,15 @@ declare module 'fastify' {
 
 const schema : JSONSchemaType<EnvSchemaData> | AnySchema = {
     type: 'object',
-    required: ['PORT','DATABASE_URL','JWT_PASSPHRASE'],
+    required: ['PORT','HOST','DATABASE_URL','JWT_PASSPHRASE'],
     properties: {
         PORT: {
             type:'number',
             default:3000
+        },
+        HOST: {
+            type:'string',
+            default:'127.0.0.1'
         },
         DATABASE_URL:{
             type:'string'
