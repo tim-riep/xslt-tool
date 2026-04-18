@@ -9,6 +9,11 @@ if(!await folderExists(join(import.meta.dirname,"..","storage")))
     await mkdir(join(import.meta.dirname,"..","storage"))
 }
 
+if(!await folderExists(join(import.meta.dirname,"..","public")))
+{
+    await mkdir(join(import.meta.dirname,"..","public"))
+}
+
 const app = await makeApp()
 
 // Inferred from the fully-registered app instance so route files get typed
@@ -23,5 +28,6 @@ await app.ready()
 
 // Errors are handled by Fastify's built-in logger; no explicit catch needed.
 void app.listen({
-    port:app.config.PORT
+    port:app.config.PORT,
+    host:app.config.HOST as unknown as string
 })
