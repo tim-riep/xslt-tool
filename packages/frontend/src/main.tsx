@@ -14,7 +14,7 @@ createRoot(root).render(
   <StrictMode>
     <BrowserRouter>
       <ApiProvider
-        baseUrl="http://localhost:3000"
+        baseUrl="/api"
         onUnauthenticated={() => { window.location.replace('/login') }}
       >
         <App />

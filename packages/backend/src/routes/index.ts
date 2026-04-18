@@ -13,7 +13,7 @@ const routes = (fastify:FastifyInstance) => {
         prefix:"/transform"
     })
     fastify.register(auth,{
-        prefix:"auth"
+        prefix:"/auth"
     })
     fastify.register(users,{
         prefix:"/users"

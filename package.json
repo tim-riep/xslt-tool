@@ -1,0 +1,12 @@
+{
+  "name": "xslt-tool",
+  "version": "1.0.0",
+  "private": true,
+  "description": "XSLT Development & Testing Tool \u2014 monorepo root",
+  "scripts": {
+    "build:backend": "npm --prefix packages/backend run build",
+    "build:frontend": "npm --prefix packages/frontend run build",
+    "copy:frontend": "node --eval \"const fs=require('node:fs');fs.rmSync('packages/backend/public',{recursive:true,force:true});fs.cpSync('packages/frontend/dist','packages/backend/public',{recursive:true});\"",
+    "build": "npm run build:backend && npm run build:frontend && npm run copy:frontend"
+  }
+}

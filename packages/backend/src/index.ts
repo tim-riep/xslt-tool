@@ -9,6 +9,11 @@ if(!await folderExists(join(import.meta.dirname,"..","storage")))
     await mkdir(join(import.meta.dirname,"..","storage"))
 }
 
+if(!await folderExists(join(import.meta.dirname,"..","public")))
+{
+    await mkdir(join(import.meta.dirname,"..","public"))
+}
+
 const app = await makeApp()
 
 // Inferred from the fully-registered app instance so route files get typed
